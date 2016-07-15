@@ -1,6 +1,7 @@
 package away3d.textures;
 
 
+import openfl.errors.ArgumentError;
 import openfl.errors.Error;
 import away3d.materials.utils.MipmapGenerator;
 import away3d.tools.utils.TextureUtils;
@@ -82,8 +83,13 @@ class BitmapTexture extends Texture2DBase {
 
     override private function uploadContent(texture:TextureBase):Void { 
         #if flash
-        if (_generateMipmaps) MipmapGenerator.generateMipMaps(_bitmapData, texture, _mipMapHolder, true)
-        else cast((texture), Texture).uploadFromBitmapData(_bitmapData, 0);
+		try {
+			if (_generateMipmaps) MipmapGenerator.generateMipMaps(_bitmapData, texture, _mipMapHolder, true)
+			else cast((texture), Texture).uploadFromBitmapData(_bitmapData, 0);
+		}
+		catch (e:ArgumentError) {
+			//trace("invalid bitmapData = " + e);
+		}
         #else
         cast((texture), Texture).uploadFromUInt8Array(_bitmapDataArray, 0);
         #end
