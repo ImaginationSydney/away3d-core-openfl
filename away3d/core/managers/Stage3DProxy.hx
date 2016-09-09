@@ -539,7 +539,7 @@ class Stage3DProxy extends EventDispatcher {
 
         // Enum to string - cast for Flash and Std.string for other platforms, cast doesn't work on windows :( 
         var renderMode:Context3DRenderMode = (forceSoftware) ? Context3DRenderMode.SOFTWARE : Context3DRenderMode.AUTO;
-        _stage3D.requestContext3D( #if flash cast renderMode #else Std.string( renderMode ) #end );
+        _stage3D.requestContext3D( #if flash cast renderMode #else Std.string( renderMode ) #end, untyped _profile );
 
 
         _contextRequested = true;
