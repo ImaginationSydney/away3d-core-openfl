@@ -97,7 +97,7 @@ class Touch3DManager {
             if (dispatcher != null)
                 dispatcher.dispatchEvent(event);
         }
-        _queuedEvents = [];
+        _queuedEvents.splice(0, _queuedEvents.length);
 
         _updateDirty = false;
 

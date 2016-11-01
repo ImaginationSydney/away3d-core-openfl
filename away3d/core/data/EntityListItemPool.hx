@@ -31,7 +31,7 @@ class EntityListItemPool {
     }
 
     public function dispose():Void {
-        _pool = [];
+        _pool.splice(0, _pool.length);
     }
 }
 
