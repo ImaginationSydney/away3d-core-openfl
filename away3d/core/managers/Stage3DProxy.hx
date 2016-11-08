@@ -124,16 +124,21 @@ class Stage3DProxy extends EventDispatcher {
         _stage3DManager = stage3DManager;
         _viewPort = new Rectangle();
         _enableDepthAndStencil = true;
-
+		trace("profile = " + profile);
+		
         super();
-
-        // whatever happens, be sure this has highest priority
-        _stage3D.addEventListener(Event.CONTEXT3D_CREATE, onContext3DUpdate, false, 1000, false);
-
-        this.forceSoftware = forceSoftware;
+		
+		this.forceSoftware = forceSoftware;
         this._profile = profile;
-
-        requestContext(forceSoftware, _profile);
+		
+        // whatever happens, be sure this has highest priority
+		if (_stage3D.context3D == null) {
+			_stage3D.addEventListener(Event.CONTEXT3D_CREATE, onContext3DUpdate, false, 1000, false);
+			requestContext(forceSoftware, _profile);
+		}
+		else {
+			onContext3DUpdate(null);
+		}
     }
 
     private var forceSoftware:Bool ;
@@ -160,19 +165,19 @@ class Stage3DProxy extends EventDispatcher {
     public function setRenderCallback(func : Event -> Void) : Void {
         if (_context3D != null) {
             if (_callbackMethod != null) {
-                #if flash
-                flash.Lib.current.removeEventListener(flash.events.Event.ENTER_FRAME, func);
-                #else
-                _context3D.removeRenderMethod(func);
-                #end
+                //#if flash
+					flash.Lib.current.removeEventListener(flash.events.Event.ENTER_FRAME, func);
+                /*#else
+					_context3D.removeRenderMethod(func);
+                #end*/
             }
 
             if (func != null) {
-                #if flash
-                flash.Lib.current.addEventListener(flash.events.Event.ENTER_FRAME, func);
-                #else
-                _context3D.setRenderMethod(func);
-                #end
+                //#if flash
+					flash.Lib.current.addEventListener(flash.events.Event.ENTER_FRAME, func);
+                /*#else
+					_context3D.setRenderMethod(func);
+                #end*/
             }
         }
 
@@ -238,7 +243,7 @@ class Stage3DProxy extends EventDispatcher {
             _context3D.setRenderToTexture(target, enableDepthAndStencil, _antiAlias, surfaceSelector)
         else {
             _context3D.setRenderToBackBuffer();
-            _context3D.configureBackBuffer(_backBufferWidth, _backBufferHeight, _antiAlias, _enableDepthAndStencil);
+            //_context3D.configureBackBuffer(_backBufferWidth, _backBufferHeight, _antiAlias, _enableDepthAndStencil);
         }
     }
 
@@ -487,7 +492,7 @@ class Stage3DProxy extends EventDispatcher {
      * Frees the Context3D associated with this Stage3DProxy.
      */
     private function freeContext3D():Void {
-        if (_context3D != null) {
+       if (_context3D != null) {
             _context3D.dispose();
             dispatchEvent(new Stage3DEvent(Stage3DEvent.CONTEXT3D_DISPOSED));
         }
@@ -500,8 +505,8 @@ class Stage3DProxy extends EventDispatcher {
      */
     private function onContext3DUpdate(event:Event):Void {
 
-        if (_stage3D.context3D != null) {
-            var hadContext:Bool = (_context3D != null);
+		if (_stage3D.context3D != null) {
+			var hadContext:Bool = (_context3D != null);
             _context3D = _stage3D.context3D;
             _context3D.enableErrorChecking = Debug.active;
             #if flash
@@ -569,11 +574,11 @@ class Stage3DProxy extends EventDispatcher {
     public function recoverFromDisposal():Bool {
         if (_context3D == null) return false;
         if (_context3D.driverInfo == "Disposed") {
-            _context3D = null;
+			_context3D = null;
             dispatchEvent(new Stage3DEvent(Stage3DEvent.CONTEXT3D_DISPOSED));
             return false;
         }
-        return true;
+		return true;
     }
 
     public function clearDepthBuffer():Void {
