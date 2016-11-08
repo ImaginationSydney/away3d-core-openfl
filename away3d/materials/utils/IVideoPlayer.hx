@@ -2,6 +2,7 @@ package away3d.materials.utils;
 
 import openfl.display.Sprite;
 import openfl.media.SoundTransform;
+import openfl.net.NetStream;
 
 interface IVideoPlayer {
     var source(get, set):String;
@@ -16,7 +17,8 @@ interface IVideoPlayer {
     var playing(get, never):Bool;
     var paused(get, never):Bool;
     var time(get, never):Float;
-
+	var ns(get, never):NetStream;
+	
     /**
 	 * The source, url, to the video file
 	 */
@@ -73,6 +75,10 @@ interface IVideoPlayer {
 	 * Returns the actual time of the netStream
 	 */
     private function get_time():Float;
+    /**
+	 * Returns the netStream
+	 */
+    private function get_ns():NetStream;
     /**
 	 * Start playing (or resume if paused) the video.
 	 */

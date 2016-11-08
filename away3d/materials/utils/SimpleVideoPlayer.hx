@@ -24,7 +24,8 @@ class SimpleVideoPlayer implements IVideoPlayer {
     public var time(get, never):Float;
     public var playing(get, never):Bool;
     public var paused(get, never):Bool;
-
+	public var ns(get, never):NetStream;
+	
     private var _src:String;
     private var _video:Video;
     private var _ns:NetStream;
@@ -168,10 +169,15 @@ class SimpleVideoPlayer implements IVideoPlayer {
     private function netStatusHandler(e:NetStatusEvent):Void {
 
         var _sw0_:String = Reflect.field(e.info, "code");
+		trace("_sw0_ = " + _sw0_);
+		
         switch(_sw0_) {
             case "NetStream.Play.Stop":
 //this.dispatchEvent( new VideoEvent(VideoEvent.STOP,_netStream, file) );
-                if (loop) _ns.play(_src);
+                if (loop) {
+					//_ns.play(_src);
+					_ns.seek(0);
+				}
             case "NetStream.Play.Play":
 //this.dispatchEvent( new VideoEvent(VideoEvent.PLAY,_netStream, file) );
             case "NetStream.Play.StreamNotFound":
@@ -280,6 +286,10 @@ class SimpleVideoPlayer implements IVideoPlayer {
 
     private function get_paused():Bool {
         return _paused;
+    }
+
+    private function get_ns():NetStream {
+        return _ns;
     }
 }
 
