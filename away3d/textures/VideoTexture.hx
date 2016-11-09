@@ -3,6 +3,7 @@ package away3d.textures;
 import away3d.materials.utils.IVideoPlayer;
 import away3d.materials.utils.SimpleVideoPlayer;
 import away3d.tools.utils.TextureUtils;
+import openfl.Lib;
 import openfl.display.BitmapData;
 import openfl.display.Sprite;
 import openfl.events.Event;
@@ -15,7 +16,10 @@ class VideoTexture extends BitmapTexture {
     public var autoUpdate(get, set):Bool;
     public var player(get, never):IVideoPlayer;
 
+	#if flash
     private var _broadcaster:Sprite;
+	#end
+	
     private var _autoPlay:Bool;
     private var _autoUpdate:Bool;
     private var _materialWidth:Int;
@@ -24,7 +28,10 @@ class VideoTexture extends BitmapTexture {
     private var _clippingRect:Rectangle;
 
     public function new(source:String, materialWidth:Int = 256, materialHeight:Int = 256, loop:Bool = true, autoPlay:Bool = false, player:IVideoPlayer = null) {
+		#if flash
         _broadcaster = new Sprite();
+		#end
+		
 // validates the size of the video
         _materialWidth = materialWidth;
         _materialHeight = materialHeight;
@@ -66,8 +73,11 @@ class VideoTexture extends BitmapTexture {
         bitmapData.dispose();
         _player.dispose();
         _player = null;
-        _broadcaster = null;
         _clippingRect = null;
+		
+		#if flash
+        _broadcaster = null;
+		#end
     }
 
     private function autoUpdateHandler(event:Event):Void {
@@ -128,8 +138,13 @@ class VideoTexture extends BitmapTexture {
     private function set_autoUpdate(value:Bool):Bool {
         if (value == _autoUpdate) return value;
         _autoUpdate = value;
-        if (value) _broadcaster.addEventListener(Event.ENTER_FRAME, autoUpdateHandler, false, 0, true)
+		#if flash
+        if (value) _broadcaster.addEventListener(Event.ENTER_FRAME, autoUpdateHandler, false, 0, true);
         else _broadcaster.removeEventListener(Event.ENTER_FRAME, autoUpdateHandler);
+		#else
+        if (value) Lib.current.addEventListener(Event.ENTER_FRAME, autoUpdateHandler, false, 0, true);
+        else Lib.current.removeEventListener(Event.ENTER_FRAME, autoUpdateHandler);
+		#end
         return value;
     }
 
