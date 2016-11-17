@@ -90,8 +90,10 @@ class BitmapTexture extends Texture2DBase {
 		catch (e:ArgumentError) {
 			//trace("invalid bitmapData = " + e);
 		}
-        #else
-        cast((texture), Texture).uploadFromUInt8Array(_bitmapDataArray, 0);
+        #elseif js
+		cast(texture, Texture).uploadFromBitmapData(_bitmapData);
+		#else
+        cast(texture, Texture).uploadFromUInt8Array(_bitmapDataArray, 0);
         #end
     }
 

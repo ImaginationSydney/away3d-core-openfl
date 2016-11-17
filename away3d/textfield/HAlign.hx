@@ -13,23 +13,15 @@ package away3d.textfield;
 import openfl.errors.Error;
 
 /** A class that provides constant values for horizontal alignment of objects. */
-class HAlign
+@:enum
+abstract HAlign(String) from String
 {
-	/** @private */
-	public function new() { throw new Error(); }
-	
 	/** Left alignment. */
-	public static var LEFT:String   = "left";
+	var LEFT   = "left";
 	
 	/** Centered alignement. */
-	public static var CENTER:String = "center";
+	var CENTER = "center";
 	
 	/** Right alignment. */
-	public static var RIGHT:String  = "right";
-	
-	/** Indicates whether the given alignment string is valid. */
-	public static function isValid(hAlign:String):Bool
-	{
-		return hAlign == HAlign.LEFT || hAlign == HAlign.CENTER || hAlign == HAlign.RIGHT;
-	}
+	var RIGHT  = "right";
 }

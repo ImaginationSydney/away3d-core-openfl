@@ -21,11 +21,8 @@ class TextField extends Mesh {
 	private var mBitmapFont:BitmapFont;
 	private var mFontSize:Float;
 	private var mColor:UInt;
-	private var mHAlign:String;
-	private var mVAlign:String;
-	private var mBold:Bool;
-	private var mItalic:Bool;
-	private var mUnderline:Bool;
+	private var mHAlign:HAlign;
+	private var mVAlign:VAlign;
 	private var mAutoScale:Bool;
 	private var mAutoSize:TextFieldAutoSize;
 	private var mKerning:Bool;
@@ -45,7 +42,7 @@ class TextField extends Mesh {
 	private var colorTransformMethod:ColorTransformMethod;
 	private var textureMaterial:TextureMaterial;
 	
-	public function new(width:Float, height:Float, text:String, bitmapFont:BitmapFont, fontSize:Float = 12, color:UInt = 0x0, bold:Bool = false, _hAlign:String="left") {
+	public function new(width:Float, height:Float, text:String, bitmapFont:BitmapFont, fontSize:Float = 12, color:UInt = 0x0, _hAlign:HAlign=HAlign.LEFT) {
 		super(new Geometry(), bitmapFont.fontMaterial);
 		
 		mText = text;
@@ -59,7 +56,7 @@ class TextField extends Mesh {
 		mVAlign = VAlign.TOP;
 		mBorder = null;
 		mKerning = true;
-		mBold = bold;
+		mAutoScale = false;
 		mAutoSize = TextFieldAutoSize.NONE;
 		_subGeometry = new CompactSubGeometry();
 		_subGeometry.autoDeriveVertexNormals = true;
@@ -67,7 +64,7 @@ class TextField extends Mesh {
 		geometry.addSubGeometry(_subGeometry);
 		
 		textureMaterial = bitmapFont.fontMaterial;
-		var rgb:Array<UInt> = HexToRGB(color);
+		var rgb:Vector<UInt> = HexToRGB(color);
 		if (textureMaterial.colorTransform == null) {
 			textureMaterial.colorTransform = new ColorTransform();
 		}
@@ -107,49 +104,56 @@ class TextField extends Mesh {
 	private function updateText():Void {
 		
 		mBitmapFont.fillBatched(vertexData, indexData, mWidth, mHeight, mText, mFontSize, mHAlign, mVAlign, mAutoScale, mKerning, mLetterSpacing);
+		if (vertexData.length == 0) return;
 		
 		_subGeometry.updateData(vertexData);
 		_subGeometry.updateIndexData(indexData);
 	}
-
-
-	/** Indicates whether the text is bold. @default false */
-	public var bold(get, set):Bool;
-	private function get_bold():Bool {
-		return mBold;
+	
+	public var width(get, set):Float;
+	private function get_width():Float {
+		return mWidth;
 	}
-
-	private function set_bold(value:Bool):Bool {
-		if (mBold != value) {
-			mBold = value;
+	private function set_width(value:Float):Float {
+		if (mWidth != value) {
+			mWidth = value;
 			updateText();
 		}
 		return value;
 	}
-
-	/** Indicates whether the text is italicized. @default false */
-	public var italic(get, set):Bool;
-	private function get_italic():Bool {
-		return mItalic;
+	public var height(get, set):Float;
+	private function get_height():Float {
+		return mHeight;
 	}
-
-	private function set_italic(value:Bool):Bool {
-		if (mItalic != value) {
-			mItalic = value;
+	private function set_height(value:Float):Float {
+		if (mHeight != value) {
+			mHeight = value;
 			updateText();
 		}
 		return value;
 	}
-
-	/** Indicates whether the text is underlined. @default false */
-	public var underline(get, set):Bool;
-	private function get_underline():Bool {
-		return mUnderline;
+	
+	/** Horizontal alignment of text within bounds. */
+	public var hAlign(get, set):HAlign;
+	private function get_hAlign():HAlign {
+		return mHAlign;
 	}
-
-	private function set_underline(value:Bool):Bool {
-		if (mUnderline != value) {
-			mUnderline = value;
+	private function set_hAlign(value:HAlign):HAlign {
+		if (mHAlign != value) {
+			mHAlign = value;
+			updateText();
+		}
+		return value;
+	}
+	
+	/** Vertical alignment of text within bounds. */
+	public var vAlign(get, set):VAlign;
+	private function get_vAlign():VAlign {
+		return mVAlign;
+	}
+	private function set_vAlign(value:VAlign):VAlign {
+		if (mVAlign != value) {
+			mVAlign = value;
 			updateText();
 		}
 		return value;
