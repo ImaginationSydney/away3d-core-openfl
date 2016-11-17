@@ -21,7 +21,10 @@ import openfl.display3D.Program3D;
 import openfl.display3D.VertexBuffer3D;
 import openfl.display3D.textures.Texture;
 import openfl.events.Event;
+
+#if html5
 import starling.openfl.AGLSLParser;
+#end
 
 class StereoRenderer {
     public var renderMethod(get, set):StereoRenderMethodBase;
