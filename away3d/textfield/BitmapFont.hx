@@ -338,162 +338,163 @@ class BitmapFont
 	/** Arranges the characters of a text inside a rectangle, adhering to the given settings. 
 	 *  Returns a Vector of CharLocations. */
 	private function arrangeChars(width:Float, height:Float, text:String, fontSize:Float=-1,
-								  hAlign:HAlign=HAlign.CENTER, vAlign:VAlign=VAlign.CENTER,
-								  autoScale:Bool=true, kerning:Bool=true, letterSpacing:Float=0):Vector<CharLocation>
-	{
+                                  hAlign:HAlign=HAlign.CENTER, vAlign:VAlign=VAlign.CENTER,
+                                  autoScale:Bool=true, kerning:Bool=true,
+                                  leading:Float=0):Vector<CharLocation>
+    {
 		if (hAlign == null) hAlign = HAlign.CENTER;
 		if (vAlign == null) vAlign = VAlign.CENTER;
 		
-		if (text == null || text.length == 0) return CharLocation.vectorFromPool();
-		if (fontSize < 0) fontSize *= -mSize;
-		
-		var finished:Bool = false;
-		var charLocation:CharLocation;
-		var numChars:Int;
-		var containerWidth:Float = 0;
-		var containerHeight:Float = 0;
-		var scale:Float = 1;
-		
-		var currentX:Float = 0;
-		var currentY:Float = 0;
-		
-		while (!finished)
-		{
-			sLines = new Vector<Vector<CharLocation>>();
-			
-			scale = fontSize / mSize;
-			containerWidth  = width / scale;
-			containerHeight = height / scale;
-			
-			if (mLineHeight <= containerHeight)
-			{
-				var lastWhiteSpace:Int = -1;
-				var lastCharID:Int = -1;
-				currentX = 0;
-				currentY = 0;
-				var currentLine:Vector<CharLocation> = CharLocation.vectorFromPool();
-				
-				numChars = text.length;
-				for (i in 0...numChars) 
-				{
-					var lineFull:Bool = false;
-					var charID:Int = text.charCodeAt(i);
-					var char:BitmapChar = getChar(charID);
-					
-					if (charID == CHAR_NEWLINE || charID == CHAR_CARRIAGE_RETURN)
-					{
-						lineFull = true;
-					}
-					else if (char == null)
-					{
-						trace("[BitmapFont] Missing character: " + charID);
-					}
-					else
-					{
-						if (charID == CHAR_SPACE || charID == CHAR_TAB)
-							lastWhiteSpace = i;
-						
-						if (kerning)
-							currentX += char.getKerning(lastCharID);
-						
-						charLocation = CharLocation.instanceFromPool(char);
-						charLocation.x = currentX + char.xOffset;
-						charLocation.y = currentY + char.yOffset;
-						currentLine[currentLine.length] = charLocation; // push
-						
-						currentX += char.xAdvance;
-						lastCharID = charID;
-						
-						if (charLocation.x + char.width > containerWidth)
-						{
-							// when autoscaling, we must not split a word in half -> restart
-							if (autoScale && lastWhiteSpace == -1)
-								break;
+        if (text == null || text.length == 0) return CharLocation.vectorFromPool();
+        if (fontSize < 0) fontSize *= -mSize;
+        
+        var finished:Bool = false;
+        var charLocation:CharLocation;
+        var numChars:Int;
+        var containerWidth:Float = 0.0;
+        var containerHeight:Float = 0.0;
+        var scale:Float = 0.0;
 
-							// remove characters and add them again to next line
-							var numCharsToRemove:Int = lastWhiteSpace == -1 ? 1 : i - lastWhiteSpace;
-							var removeIndex:Int = currentLine.length - numCharsToRemove;
-							
-							currentLine.splice(removeIndex, numCharsToRemove);
-							
-							if (currentLine.length == 0)
-								break;
-							
-							//i -= numCharsToRemove;
-							lineFull = true;
-						}
-					}
-					
-					if (i == numChars - 1)
-					{
-						sLines[sLines.length] = currentLine; // push
-						finished = true;
-					}
-					else if (lineFull)
-					{
-						sLines[sLines.length] = currentLine; // push
-						if (lastWhiteSpace == i)
-							currentLine.pop();
-						
-						if (currentY + 2*mLineHeight <= containerHeight)
-						{
-							currentLine = CharLocation.vectorFromPool();
-							currentX = 0;
-							currentY += mLineHeight;
-							lastWhiteSpace = -1;
-							lastCharID = -1;
-						}
-						else
-						{
-							break;
-						}
-					}
-				} // for each char
-			} // if (mLineHeight <= containerHeight)
-			
-			if (autoScale && !finished && fontSize > 3)
-				fontSize -= 1;
-			else
-				finished = true; 
-		} // while (!finished)
-		
-		var finalLocations:Vector<CharLocation> = CharLocation.vectorFromPool();
-		var numLines:Int = sLines.length;
-		var bottom:Float = currentY + mLineHeight;
-		var yOffset:Int = 0;
-		
-		if (vAlign == VAlign.BOTTOM)      yOffset =  Std.int (containerHeight - bottom);
-		else if (vAlign == VAlign.CENTER) yOffset = Std.int ((containerHeight - bottom) / 2);
-		
-		for (lineID in 0...numLines)
-		{
-			var line:Vector<CharLocation> = sLines[lineID];
-			numChars = line.length;
-			
-			if (numChars == 0) continue;
-			
-			var xOffset:Int = 0;
-			var lastLocation:CharLocation = line[line.length-1];
-			var right:Float = lastLocation.x - lastLocation.char.xOffset 
-											  + lastLocation.char.xAdvance;
-			
-			if (hAlign == HAlign.RIGHT)       xOffset = Std.int (containerWidth - right);
-			else if (hAlign == HAlign.CENTER) xOffset = Std.int ((containerWidth - right) / 2);
-			
-			for (c in 0...numChars)
-			{
-				charLocation = line[c];
-				charLocation.x = scale * (charLocation.x + xOffset + mOffsetX);
-				charLocation.y = scale * (charLocation.y + yOffset + mOffsetY);
-				charLocation.scale = scale;
-				
-				if (charLocation.char.width > 0 && charLocation.char.height > 0)
-					finalLocations[finalLocations.length] = charLocation;
-			}
-		}
-		
-		return finalLocations;
-	}
+        var currentX:Float = 0;
+        var currentY:Float = 0;
+        
+        while (!finished)
+        {
+            sLines.length = 0;
+            scale = fontSize / mSize;
+            containerWidth  = width / scale;
+            containerHeight = height / scale;
+            
+            if (mLineHeight <= containerHeight)
+            {
+                var lastWhiteSpace:Int = -1;
+                var lastCharID:Int = -1;
+                var currentLine:Vector<CharLocation> = CharLocation.vectorFromPool();
+                
+                numChars = text.length;
+                var i:Int = 0;
+                while (i < numChars)
+                {
+                    var lineFull:Bool = false;
+                    var charID:Int = text.charCodeAt(i);
+                    var char:BitmapChar = getChar(charID);
+                    
+                    if (charID == CHAR_NEWLINE || charID == CHAR_CARRIAGE_RETURN)
+                    {
+                        lineFull = true;
+                    }
+                    else if (char == null)
+                    {
+                        trace("[Starling] Missing character: " + charID);
+                    }
+                    else
+                    {
+                        if (charID == CHAR_SPACE || charID == CHAR_TAB)
+                            lastWhiteSpace = i;
+                        
+                        if (kerning)
+                            currentX += char.getKerning(lastCharID);
+                        
+                        charLocation = CharLocation.instanceFromPool(char);
+                        charLocation.x = currentX + char.xOffset;
+                        charLocation.y = currentY + char.yOffset;
+                        currentLine[currentLine.length] = charLocation; // push
+                        
+                        currentX += char.xAdvance;
+                        lastCharID = charID;
+                        
+                        if (charLocation.x + char.width > containerWidth)
+                        {
+                            // when autoscaling, we must not split a word in half -> restart
+                            if (autoScale && lastWhiteSpace == -1)
+                                break;
+
+                            // remove characters and add them again to next line
+                            var numCharsToRemove:Int = lastWhiteSpace == -1 ? 1 : i - lastWhiteSpace;
+
+                            for (j in 0...numCharsToRemove) // faster than 'splice'
+                                currentLine.pop();
+                            
+                            if (currentLine.length == 0)
+                                break;
+                            
+                            i -= numCharsToRemove;
+                            lineFull = true;
+                        }
+                    }
+                    
+                    if (i == numChars - 1)
+                    {
+                        sLines[sLines.length] = currentLine; // push
+                        finished = true;
+                    }
+                    else if (lineFull)
+                    {
+                        sLines[sLines.length] = currentLine; // push
+                        
+                        if (lastWhiteSpace == i)
+                            currentLine.pop();
+                        
+                        if (currentY + leading + 2 * mLineHeight <= containerHeight)
+                        {
+                            currentLine = CharLocation.vectorFromPool();
+                            currentX = 0;
+                            currentY += mLineHeight + leading;
+                            lastWhiteSpace = -1;
+                            lastCharID = -1;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                ++i;
+                } // for each char
+            } // if (mLineHeight <= containerHeight)
+            
+            if (autoScale && !finished && fontSize > 3)
+                fontSize -= 1;
+            else
+                finished = true; 
+        } // while (!finished)
+        
+        var finalLocations:Vector<CharLocation> = CharLocation.vectorFromPool();
+        var numLines:Int = sLines.length;
+        var bottom:Float = currentY + mLineHeight;
+        var yOffset:Int = 0;
+        
+        if (vAlign == VAlign.BOTTOM)      yOffset = Std.int(containerHeight - bottom);
+        else if (vAlign == VAlign.CENTER) yOffset = Std.int((containerHeight - bottom) / 2);
+        
+        for (lineID in 0...numLines)
+        {
+            var line:Vector<CharLocation> = sLines[lineID];
+            numChars = line.length;
+            
+            if (numChars == 0) continue;
+            
+            var xOffset:Int = 0;
+            var lastLocation:CharLocation = line[line.length-1];
+            var right:Float = lastLocation.x - lastLocation.char.xOffset 
+                                              + lastLocation.char.xAdvance;
+            
+            if (hAlign == HAlign.RIGHT)       xOffset = Std.int(containerWidth - right);
+            else if (hAlign == HAlign.CENTER) xOffset = Std.int((containerWidth - right) / 2);
+            
+            for (c in 0...numChars)
+            {
+                charLocation = line[c];
+                charLocation.x = scale * (charLocation.x + xOffset + mOffsetX);
+                charLocation.y = scale * (charLocation.y + yOffset + mOffsetY);
+                charLocation.scale = scale;
+                
+                if (charLocation.char.width > 0 && charLocation.char.height > 0)
+                    finalLocations[finalLocations.length] = charLocation;
+            }
+        }
+        
+        return finalLocations;
+    }
 	
 	/** The name of the font as it was parsed from the font file. */
 	public var name(get, null):String;
